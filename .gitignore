@@ -1,0 +1,32 @@
+# Maven (Spring Boot)
+backend/target/
+backend/*.jar
+backend/*.war
+
+# Node.js (React)
+frontend/node_modules/
+frontend/dist/
+frontend/.eslintcache
+
+# Python (AI Service)
+ai-service/venv/
+ai-service/index_store/
+ai-service/__pycache__/
+ai-service/*.pyc
+ai-service/*.pyo
+ai-service/*.pyd
+ai-service/.pytest_cache/
+
+# Environment configurations and secrets
+.env
+.env.local
+.env.*.local
+ai-service/.env
+backend/.env
+
+# Local database files / temporary files
+*.db
+*.log
+.DS_Store
+.idea/
+.vscode/

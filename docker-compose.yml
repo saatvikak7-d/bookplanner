@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: bookplanner-db
+    restart: always
+    environment:
+      POSTGRES_USER: bookplanner_user
+      POSTGRES_PASSWORD: bookplanner_password
+      POSTGRES_DB: bookplanner
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
