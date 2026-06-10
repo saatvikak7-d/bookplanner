@@ -20,21 +20,16 @@ class VectorStoreManager:
         return index_path, meta_path
 
     def index_book(self, book_id: int, chunks: list):
-        """
-        Embed and index chunks for a book.
+        """Embed and index chunks for a book.
+
         Each chunk is a dictionary with keys: chunk_id, content, title, start_page, end_page
         """
         if not chunks:
             return False
-
         texts = [chunk["content"] for chunk in chunks]
         embeddings = self.model.encode(texts, convert_to_numpy=True)
-
-        # Initialize a standard FAISS index (L2 distance)
         index = faiss.IndexFlatL2(self.dimension)
         index.add(embeddings)
-
-        # Save metadata mapping vector index to chunk details
         metadata = {
             i: {
                 "chunk_id": chunk["chunk_id"],
@@ -42,44 +37,52 @@ class VectorStoreManager:
                 "title": chunk["title"],
                 "content": chunk["content"],
                 "start_page": chunk["start_page"],
-                "end_page": chunk["end_page"]
+                "end_page": chunk["end_page"],
+                "completed": False,
             }
             for i, chunk in enumerate(chunks)
         }
-
-        # Save FAISS index and metadata to disk
         index_path, meta_path = self._get_paths(book_id)
         faiss.write_index(index, index_path)
         with open(meta_path, "wb") as f:
             pickle.dump(metadata, f)
-
         return True
 
-    def search(self, book_id: int, query: str, top_k: int = 3):
-        """
-        Search the vector index of a book for the most similar chunks.
-        """
-        index_path, meta_path = self._get_paths(book_id)
+    def get_chunks(self, book_id: int) -> list:
+        """Retrieve stored chunk metadata for a given book."""
+        _, meta_path = self._get_paths(book_id)
+        if not os.path.exists(meta_path):
+            return []
+        with open(meta_path, "rb") as f:
+            metadata = pickle.load(f)
+        chunks = []
+        for i in sorted(metadata.keys()):
+            info = metadata[i]
+            chunks.append({
+                "id": info["chunk_id"],
+                "chunkIndex": info["chunk_index"],
+                "title": info["title"],
+                "content": info["content"],
+                "startPage": info["start_page"],
+                "endPage": info["end_page"],
+                "completed": info.get("completed", False),
+            })
+        return chunks
 
+    def search(self, book_id: int, query: str, top_k: int = 3):
+        """Search the vector index of a book for the most similar chunks."""
+        index_path, meta_path = self._get_paths(book_id)
         if not os.path.exists(index_path) or not os.path.exists(meta_path):
             return []
-
-        # Load index and metadata
         index = faiss.read_index(index_path)
         with open(meta_path, "rb") as f:
             metadata = pickle.load(f)
-
-        # Embed query
         query_vector = self.model.encode([query], convert_to_numpy=True)
-
-        # Search index
         distances, indices = index.search(query_vector, top_k)
-
         results = []
         for i, idx in enumerate(indices[0]):
             if idx == -1 or idx not in metadata:
                 continue
-            
             chunk_info = metadata[idx]
             results.append({
                 "chunk_id": chunk_info["chunk_id"],
@@ -88,10 +91,9 @@ class VectorStoreManager:
                 "content": chunk_info["content"],
                 "start_page": chunk_info["start_page"],
                 "end_page": chunk_info["end_page"],
-                "score": float(distances[0][i])
+                "score": float(distances[0][i]),
             })
-
         return results
 
-# Initialize a global singleton manager
+# Global singleton
 vector_store_manager = VectorStoreManager()
