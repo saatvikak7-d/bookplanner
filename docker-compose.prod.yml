@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: bookplanner-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-bookplanner_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-bookplanner_password}
+      POSTGRES_DB: ${DB_NAME:-bookplanner}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  ai-service:
+    image: ${AI_SERVICE_IMAGE:-bookplanner-ai-service:latest}
+    container_name: bookplanner-ai-service
+    restart: always
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-meta-llama/llama-3-8b-instruct:free}
+    ports:
+      - "8000:8000"
+
+  backend:
+    image: ${BACKEND_IMAGE:-bookplanner-backend:latest}
+    container_name: bookplanner-backend
+    restart: always
+    depends_on:
+      - db
+      - ai-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DB_NAME:-bookplanner}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-bookplanner_user}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-bookplanner_password}
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - AI_SERVICE_URL=http://ai-service:8000
+    ports:
+      - "8080:8080"
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-bookplanner-frontend:latest}
+    container_name: bookplanner-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
