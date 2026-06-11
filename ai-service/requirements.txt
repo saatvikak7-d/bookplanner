@@ -1,6 +1,5 @@
 numpy
 faiss-cpu
-sentence-transformers
 fastapi[all]
 python-dotenv
 openai

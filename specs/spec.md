@@ -27,7 +27,7 @@ Use this document as a quick reference sheet during your code review. It explain
 
 1. **Upload & Processing**: The user uploads a PDF on the React frontend. The Spring Boot backend receives the file, extracts the text using Apache PDFBox 3.0, splits it into ~2000-word logical chunks, estimates reading times, and saves the `Book` and `ReadingChunk` entities to an in-memory H2 database.
 2. **Indexing**: Once saved, the backend triggers an asynchronous REST call to the Python FastAPI service containing the text chunks and their database IDs.
-3. **Embedding & Vector Search**: The AI Service generates 384-dimensional vector embeddings for each chunk using a local sentence-transformer model (`all-MiniLM-L6-v2`) and loads them into a local **FAISS (Facebook AI Similarity Search)** index file.
+3. **Embedding & Vector Search**: The AI Service generates deterministic 384-dimensional hashed text vectors for each chunk and loads them into a local **FAISS (Facebook AI Similarity Search)** index file.
 4. **RAG Chat Query**: When the user asks a question, the request goes from React to Spring Boot, which proxies it to the Python service. The Python service embeds the question, queries the local FAISS index for the top-3 closest matching text chunks, appends them as prompt context, and queries **OpenRouter** (defaulting to Llama-3-8B Free) to synthesize the answer.
 5. **Response & Citations**: The AI response flows back to the frontend with specific citations mapping chunk IDs and page ranges, allowing the user to click a source and immediately view the corresponding text in the reader modal.
 
@@ -39,8 +39,8 @@ Be ready to justify your engineering choices with these arguments:
 
 *   **Q: Why separate Java (Backend) and Python (AI)?**
     *   *A:* **Separation of Concerns and Performance.** Java is highly suited for business logic, database transactions, file uploads, and standard REST gateways. Python is the industry standard for ML. By keeping them separate, we prevent heavy machine-learning processes (like generating embeddings on CPU) from blocking the web server threads.
-*   **Q: Why use FAISS and SentenceTransformers locally instead of a cloud database (like Pinecone)?**
-    *   *A:* **Cost and Latency.** Pushing embeddings to a cloud database adds network overhead and database hosting costs. Running `sentence-transformers` and FAISS locally on CPU is fast, completely free, requires zero server setup, and allows the RAG database to scale dynamically as static files in local storage.
+*   **Q: Why use FAISS with local hashed text vectors instead of a cloud database (like Pinecone)?**
+    *   *A:* **Cost and Latency.** Pushing embeddings to a cloud database adds network overhead and database hosting costs. Generating deterministic local vectors and searching them with FAISS is fast, completely free, requires zero server setup, avoids heavyweight model dependencies, and allows the RAG database to scale dynamically as static files in local storage.
 *   **Q: Why replace Lombok in the Java entities?**
     *   *A:* **Build Stability.** Lombok relies on annotation processing during compilation, which frequently breaks across different IDE versions, Maven setups, and CI/CD pipelines. Writing standard POJO builders and getters/setters guarantees compile-time safety and cross-platform compatibility.
 *   **Q: Why OpenRouter instead of OpenAI?**
@@ -58,7 +58,7 @@ If asked to show code, open and explain these files:
 *   **Chunk boundary:** If a chapter is detected OR the chunk exceeds `TARGET_WORDS_PER_CHUNK` (~2000 words), we write the chunk to the DB and start a new one. This ensures we don't sever paragraphs mid-thought.
 
 ### B. The Vector Store: [vector_store.py](file:///Users/saatvikak/.gemini/antigravity-ide/scratch/bookplanner/ai-service/vector_store.py)
-*   **Embedding Model:** Line 14 loads `all-MiniLM-L6-v2`, a fast 384-dimensional transformer that embeds text queries locally in milliseconds.
+*   **Embedding Model:** `HashingEmbedder` creates deterministic 384-dimensional vectors locally without downloading or importing transformer models.
 *   **Index Creation:** Line 34 builds the FAISS index: `index = faiss.IndexFlatL2(self.dimension)`. We add the query vectors and save the index to disk as `.index` and `.meta` files mapped by `book_id`.
 *   **Similarity Search:** Line 82 runs `index.search(query_vector, top_k)`. This does high-speed Euclidean distance calculation in vector space to find the most semantically relevant text chunks.
 
