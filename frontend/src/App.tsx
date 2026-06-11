@@ -37,7 +37,142 @@ interface Message {
 
 const API_BASE = 'http://localhost:8080/api';
 
+type Language = 'en' | 'hi' | 'te';
+
+const translations = {
+  en: {
+    languageLabel: 'Language',
+    uploading: 'Uploading...',
+    uploadPdf: 'Upload PDF',
+    uploadErrorPrefix: 'Upload Error:',
+    pdfOnly: 'Only PDF files are supported',
+    uploadFailed: 'Error uploading PDF',
+    backendUnavailable: 'Could not connect to the backend server.',
+    welcome: 'Welcome to BookPlanner',
+    welcomeDescription: "Upload any PDF book. We'll divide it into optimal 10-minute reading chunks, estimate completion time, and set up an AI Chatbot to answer your questions.",
+    choosePdf: 'Choose a PDF book file',
+    dragDrop: 'drag & drop or click to browse (max 50MB)',
+    yourBooks: 'Your Books',
+    readingProgress: 'Reading Progress',
+    pages: 'PAGES',
+    chunks: 'CHUNKS',
+    difficulty: 'DIFFICULTY',
+    easy: 'Easy',
+    medium: 'Medium',
+    hard: 'Hard',
+    estimatedTotal: (minutes: number) => `Est. ${minutes} mins total`,
+    readingPlanner: 'Reading Planner',
+    completedCount: (completed: number, total: number) => `${completed} of ${total} completed`,
+    pageRange: (start: number, end: number) => `Pages ${start}-${end}`,
+    minRead: (minutes: number) => `${minutes} min read`,
+    read: 'Read',
+    aiAssistant: 'AI Reading Assistant',
+    assistantIntro: (title: string) => `Hi! I am your AI assistant for **${title}**. You can ask me any questions about this book, and I'll find the answers directly from the text.`,
+    chatProcessingError: 'Sorry, I ran into an error processing your query. Please make sure the AI service is online.',
+    chatConnectionError: "I couldn't contact the chatbot server. Please check your network connection.",
+    sourcesCited: 'Sources cited:',
+    thinking: 'Thinking...',
+    askAbout: (title: string) => `Ask about "${title}"...`,
+    selectBookFirst: 'Select a book first',
+    bookLabel: 'Book:',
+    close: 'Close',
+    words: (count: number) => `${count} words`,
+    estimatedReadTime: (minutes: number) => `Estimated read time: ${minutes} mins`,
+    markIncomplete: 'Mark Incomplete',
+    markCompleted: 'Mark Completed',
+  },
+  hi: {
+    languageLabel: 'भाषा',
+    uploading: 'अपलोड हो रहा है...',
+    uploadPdf: 'PDF अपलोड करें',
+    uploadErrorPrefix: 'अपलोड त्रुटि:',
+    pdfOnly: 'केवल PDF फाइलें समर्थित हैं',
+    uploadFailed: 'PDF अपलोड करने में त्रुटि',
+    backendUnavailable: 'बैकएंड सर्वर से कनेक्ट नहीं हो सका।',
+    welcome: 'BookPlanner में आपका स्वागत है',
+    welcomeDescription: 'कोई भी PDF पुस्तक अपलोड करें। हम उसे बेहतर 10 मिनट के पढ़ने वाले हिस्सों में बांटेंगे, पूरा करने का समय बताएंगे, और आपके सवालों के जवाब देने के लिए AI चैटबॉट तैयार करेंगे।',
+    choosePdf: 'PDF पुस्तक फाइल चुनें',
+    dragDrop: 'खींचकर छोड़ें या ब्राउज करने के लिए क्लिक करें (अधिकतम 50MB)',
+    yourBooks: 'आपकी पुस्तकें',
+    readingProgress: 'पढ़ने की प्रगति',
+    pages: 'पृष्ठ',
+    chunks: 'भाग',
+    difficulty: 'कठिनाई',
+    easy: 'आसान',
+    medium: 'मध्यम',
+    hard: 'कठिन',
+    estimatedTotal: (minutes: number) => `अनुमानित कुल ${minutes} मिनट`,
+    readingPlanner: 'रीडिंग प्लानर',
+    completedCount: (completed: number, total: number) => `${total} में से ${completed} पूरे`,
+    pageRange: (start: number, end: number) => `पृष्ठ ${start}-${end}`,
+    minRead: (minutes: number) => `${minutes} मिनट पढ़ना`,
+    read: 'पढ़ें',
+    aiAssistant: 'AI रीडिंग सहायक',
+    assistantIntro: (title: string) => `नमस्ते! मैं **${title}** के लिए आपका AI सहायक हूं। आप इस पुस्तक के बारे में कोई भी सवाल पूछ सकते हैं, और मैं सीधे पाठ से उत्तर ढूंढूंगा।`,
+    chatProcessingError: 'माफ कीजिए, आपका प्रश्न प्रोसेस करते समय त्रुटि हुई। कृपया सुनिश्चित करें कि AI सेवा ऑनलाइन है।',
+    chatConnectionError: 'मैं चैटबॉट सर्वर से संपर्क नहीं कर सका। कृपया अपना नेटवर्क कनेक्शन जांचें।',
+    sourcesCited: 'स्रोत:',
+    thinking: 'सोच रहा है...',
+    askAbout: (title: string) => `"${title}" के बारे में पूछें...`,
+    selectBookFirst: 'पहले पुस्तक चुनें',
+    bookLabel: 'पुस्तक:',
+    close: 'बंद करें',
+    words: (count: number) => `${count} शब्द`,
+    estimatedReadTime: (minutes: number) => `अनुमानित पढ़ने का समय: ${minutes} मिनट`,
+    markIncomplete: 'अधूरा चिह्नित करें',
+    markCompleted: 'पूरा चिह्नित करें',
+  },
+  te: {
+    languageLabel: 'భాష',
+    uploading: 'అప్లోడ్ అవుతోంది...',
+    uploadPdf: 'PDF అప్లోడ్ చేయండి',
+    uploadErrorPrefix: 'అప్లోడ్ లోపం:',
+    pdfOnly: 'PDF ఫైళ్లకు మాత్రమే మద్దతు ఉంది',
+    uploadFailed: 'PDF అప్లోడ్ చేయడంలో లోపం',
+    backendUnavailable: 'బ్యాకెండ్ సర్వర్‌కు కనెక్ట్ కాలేకపోయాం.',
+    welcome: 'BookPlanner కు స్వాగతం',
+    welcomeDescription: 'ఏదైనా PDF పుస్తకాన్ని అప్లోడ్ చేయండి. మేము దాన్ని సరైన 10 నిమిషాల చదువు భాగాలుగా విభజించి, పూర్తిచేసే సమయాన్ని అంచనా వేసి, మీ ప్రశ్నలకు సమాధానం ఇచ్చే AI చాట్‌బాట్‌ను సిద్ధం చేస్తాము.',
+    choosePdf: 'PDF పుస్తక ఫైల్ ఎంచుకోండి',
+    dragDrop: 'డ్రాగ్ & డ్రాప్ చేయండి లేదా బ్రౌజ్ చేయడానికి క్లిక్ చేయండి (గరిష్ఠం 50MB)',
+    yourBooks: 'మీ పుస్తకాలు',
+    readingProgress: 'చదువు పురోగతి',
+    pages: 'పేజీలు',
+    chunks: 'భాగాలు',
+    difficulty: 'కష్టత',
+    easy: 'సులభం',
+    medium: 'మధ్యస్థం',
+    hard: 'కష్టం',
+    estimatedTotal: (minutes: number) => `మొత్తం అంచనా ${minutes} నిమిషాలు`,
+    readingPlanner: 'రీడింగ్ ప్లానర్',
+    completedCount: (completed: number, total: number) => `${total}లో ${completed} పూర్తయ్యాయి`,
+    pageRange: (start: number, end: number) => `పేజీలు ${start}-${end}`,
+    minRead: (minutes: number) => `${minutes} నిమిషాల చదువు`,
+    read: 'చదవండి',
+    aiAssistant: 'AI రీడింగ్ అసిస్టెంట్',
+    assistantIntro: (title: string) => `నమస్తే! **${title}** కోసం నేను మీ AI అసిస్టెంట్‌ని. ఈ పుస్తకం గురించి మీరు ఏ ప్రశ్నైనా అడగవచ్చు, నేను సమాధానాలను నేరుగా పాఠ్యం నుంచి కనుగొంటాను.`,
+    chatProcessingError: 'క్షమించండి, మీ ప్రశ్నను ప్రాసెస్ చేయడంలో లోపం వచ్చింది. AI సేవ ఆన్‌లైన్‌లో ఉందో లేదో చూసుకోండి.',
+    chatConnectionError: 'చాట్‌బాట్ సర్వర్‌ను సంప్రదించలేకపోయాను. దయచేసి మీ నెట్‌వర్క్ కనెక్షన్‌ను తనిఖీ చేయండి.',
+    sourcesCited: 'సూచించిన మూలాలు:',
+    thinking: 'ఆలోచిస్తోంది...',
+    askAbout: (title: string) => `"${title}" గురించి అడగండి...`,
+    selectBookFirst: 'ముందుగా పుస్తకాన్ని ఎంచుకోండి',
+    bookLabel: 'పుస్తకం:',
+    close: 'మూసివేయండి',
+    words: (count: number) => `${count} పదాలు`,
+    estimatedReadTime: (minutes: number) => `అంచనా చదువు సమయం: ${minutes} నిమిషాలు`,
+    markIncomplete: 'అసంపూర్తిగా గుర్తించండి',
+    markCompleted: 'పూర్తయింది అని గుర్తించండి',
+  },
+} as const;
+
+const difficultyLabels: Record<Language, Record<string, string>> = {
+  en: { Easy: translations.en.easy, Medium: translations.en.medium, Hard: translations.en.hard },
+  hi: { Easy: translations.hi.easy, Medium: translations.hi.medium, Hard: translations.hi.hard },
+  te: { Easy: translations.te.easy, Medium: translations.te.medium, Hard: translations.te.hard },
+};
+
 export default function App() {
+  const [language, setLanguage] = useState<Language>('en');
   const [books, setBooks] = useState<Book[]>([]);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [chunks, setChunks] = useState<ReadingChunk[]>([]);
@@ -58,6 +193,7 @@ export default function App() {
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = translations[language];
 
   // Initial load: Fetch all books
   useEffect(() => {
@@ -71,14 +207,14 @@ export default function App() {
       setMessages([
         {
           sender: 'assistant',
-          text: `Hi! I am your AI assistant for **${selectedBook.title}**. You can ask me any questions about this book, and I'll find the answers directly from the text.`
+          text: translations[language].assistantIntro(selectedBook.title)
         }
       ]);
     } else {
       setChunks([]);
       setMessages([]);
     }
-  }, [selectedBook]);
+  }, [selectedBook, language]);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
@@ -124,7 +260,7 @@ export default function App() {
     if (!file) return;
 
     if (file.type !== 'application/pdf') {
-      setUploadError("Only PDF files are supported");
+      setUploadError(t.pdfOnly);
       return;
     }
 
@@ -146,10 +282,10 @@ export default function App() {
         setSelectedBook(newBook);
       } else {
         const errText = await res.text();
-        setUploadError(errText || "Error uploading PDF");
+        setUploadError(errText || t.uploadFailed);
       }
     } catch (err) {
-      setUploadError("Could not connect to the backend server.");
+      setUploadError(t.backendUnavailable);
       console.error(err);
     } finally {
       setUploading(false);
@@ -215,14 +351,14 @@ export default function App() {
       } else {
         setMessages(prev => [...prev, {
           sender: 'assistant',
-          text: "Sorry, I ran into an error processing your query. Please make sure the AI service is online."
+          text: t.chatProcessingError
         }]);
       }
     } catch (err) {
       console.error(err);
       setMessages(prev => [...prev, {
         sender: 'assistant',
-        text: "I couldn't contact the chatbot server. Please check your network connection."
+        text: t.chatConnectionError
       }]);
     } finally {
       setSendingChat(false);
@@ -266,7 +402,20 @@ export default function App() {
           {bookIcon}
           <span>BookPlanner</span>
         </div>
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-sub)', fontSize: '0.85rem' }}>
+            <span>{t.languageLabel}</span>
+            <select
+              value={language}
+              onChange={e => setLanguage(e.target.value as Language)}
+              className="language-select"
+              aria-label={t.languageLabel}
+            >
+              <option value="en">English</option>
+              <option value="hi">हिन्दी</option>
+              <option value="te">తెలుగు</option>
+            </select>
+          </label>
           <button 
             className="btn btn-secondary"
             onClick={() => fileInputRef.current?.click()}
@@ -275,12 +424,12 @@ export default function App() {
             {uploading ? (
               <>
                 <div className="spinner" style={{ width: 14, height: 14 }}></div>
-                <span>Uploading...</span>
+                <span>{t.uploading}</span>
               </>
             ) : (
               <>
                 {uploadIcon}
-                <span>Upload PDF</span>
+                <span>{t.uploadPdf}</span>
               </>
             )}
           </button>
@@ -297,21 +446,21 @@ export default function App() {
       <main className="main-content">
         {uploadError && (
           <div className="glass-card" style={{ borderColor: 'rgba(239, 68, 68, 0.4)', background: 'rgba(239, 68, 68, 0.05)', color: '#ef4444' }}>
-            <strong>Upload Error:</strong> {uploadError}
+            <strong>{t.uploadErrorPrefix}</strong> {uploadError}
           </div>
         )}
 
         {books.length === 0 && !uploading ? (
           // Empty state / First upload
           <div className="glass-card" style={{ maxWidth: 600, margin: '4rem auto', width: '100%' }}>
-            <h2 className="title-primary" style={{ textAlign: 'center', marginBottom: '1rem' }}>Welcome to BookPlanner</h2>
+            <h2 className="title-primary" style={{ textAlign: 'center', marginBottom: '1rem' }}>{t.welcome}</h2>
             <p className="subtitle-primary" style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              Upload any PDF book. We'll divide it into optimal 10-minute reading chunks, estimate completion time, and set up an AI Chatbot to answer your questions.
+              {t.welcomeDescription}
             </p>
             <div className="upload-zone" onClick={() => fileInputRef.current?.click()}>
               <div className="upload-icon">{uploadIcon}</div>
-              <h3>Choose a PDF book file</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>drag & drop or click to browse (max 50MB)</p>
+              <h3>{t.choosePdf}</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>{t.dragDrop}</p>
             </div>
           </div>
         ) : (
@@ -323,7 +472,7 @@ export default function App() {
               
               {/* Library list */}
               <div className="glass-card">
-                <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem', color: 'var(--text-main)' }}>Your Books</h3>
+                <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem', color: 'var(--text-main)' }}>{t.yourBooks}</h3>
                 {loadingBooks ? (
                   <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
                     <div className="spinner"></div>
@@ -363,7 +512,7 @@ export default function App() {
                     {/* Completion rate */}
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
-                        <span style={{ color: 'var(--text-sub)' }}>Reading Progress</span>
+                        <span style={{ color: 'var(--text-sub)' }}>{t.readingProgress}</span>
                         <span style={{ fontWeight: 600, color: 'var(--secondary)' }}>{selectedBook.readingProgress}%</span>
                       </div>
                       <div className="progress-bar-container">
@@ -376,15 +525,15 @@ export default function App() {
                     {/* Stats details */}
                     <div style={{ display: 'flex', gap: '1.5rem' }}>
                       <div>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block' }}>PAGES</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block' }}>{t.pages}</span>
                         <span style={{ fontWeight: 600, fontSize: '1.05rem' }}>{selectedBook.totalPages}</span>
                       </div>
                       <div>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block' }}>CHUNKS</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block' }}>{t.chunks}</span>
                         <span style={{ fontWeight: 600, fontSize: '1.05rem' }}>{chunks.length}</span>
                       </div>
                       <div>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block' }}>DIFFICULTY</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block' }}>{t.difficulty}</span>
                         <span 
                           style={{ 
                             fontWeight: 600, 
@@ -397,7 +546,7 @@ export default function App() {
                             marginTop: '0.1rem'
                           }}
                         >
-                          {selectedBook.readingDifficulty}
+                          {difficultyLabels[language][selectedBook.readingDifficulty] ?? selectedBook.readingDifficulty}
                         </span>
                       </div>
                     </div>
@@ -405,7 +554,7 @@ export default function App() {
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-sub)', marginTop: '0.5rem' }}>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                         {clockIcon}
-                        Est. {selectedBook.estimatedCompletionTime} mins total
+                        {t.estimatedTotal(selectedBook.estimatedCompletionTime)}
                       </span>
                     </div>
 
@@ -418,9 +567,9 @@ export default function App() {
             <div className="planner-column" style={{ display: 'flex', flexDirection: 'column' }}>
               <div className="glass-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <h3 style={{ marginBottom: '1.25rem', fontSize: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>Reading Planner</span>
+                  <span>{t.readingPlanner}</span>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 400 }}>
-                    {chunks.filter(c => c.completed).length} of {chunks.length} completed
+                    {t.completedCount(chunks.filter(c => c.completed).length, chunks.length)}
                   </span>
                 </h3>
 
@@ -452,7 +601,7 @@ export default function App() {
                               {chunk.title}
                             </span>
                             <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                              Pages {chunk.startPage}–{chunk.endPage} • {chunk.estimatedReadingTime} min read
+                              {t.pageRange(chunk.startPage, chunk.endPage)} • {t.minRead(chunk.estimatedReadingTime)}
                             </span>
                           </div>
                         </div>
@@ -462,7 +611,7 @@ export default function App() {
                           className="btn btn-secondary"
                           style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}
                         >
-                          Read
+                          {t.read}
                         </button>
                       </div>
                     ))}
@@ -475,7 +624,7 @@ export default function App() {
             <div className="chat-column" style={{ display: 'flex', flexDirection: 'column' }}>
               <div className="glass-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem', color: 'var(--text-main)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
-                  AI Reading Assistant
+                  {t.aiAssistant}
                 </h3>
                 
                 <div className="chat-container">
@@ -489,7 +638,7 @@ export default function App() {
                         {msg.citations && msg.citations.length > 0 && (
                           <div style={{ marginTop: '0.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
                             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', width: '100%', marginTop: '0.25rem' }}>
-                              Sources cited:
+                              {t.sourcesCited}
                             </span>
                             {msg.citations.map(cit => (
                               <button 
@@ -513,7 +662,7 @@ export default function App() {
                     {sendingChat && (
                       <div className="chat-bubble chat-bubble-assistant" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <div className="spinner" style={{ width: 12, height: 12, borderWidth: '2px' }}></div>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Thinking...</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{t.thinking}</span>
                       </div>
                     )}
                     <div ref={chatEndRef} />
@@ -524,7 +673,7 @@ export default function App() {
                       type="text"
                       value={query}
                       onChange={e => setQuery(e.target.value)}
-                      placeholder={selectedBook ? `Ask about "${selectedBook.title}"...` : "Select a book first"}
+                      placeholder={selectedBook ? t.askAbout(selectedBook.title) : t.selectBookFirst}
                       disabled={!selectedBook || sendingChat}
                       className="chat-input"
                     />
@@ -575,7 +724,7 @@ export default function App() {
               <div>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 600 }}>{activeReaderChunk.title}</h2>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Book: {selectedBook?.title} • Pages {activeReaderChunk.startPage}–{activeReaderChunk.endPage}
+                  {t.bookLabel} {selectedBook?.title} • {t.pageRange(activeReaderChunk.startPage, activeReaderChunk.endPage)}
                 </span>
               </div>
               <button 
@@ -583,7 +732,7 @@ export default function App() {
                 className="btn btn-secondary"
                 style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
               >
-                Close
+                {t.close}
               </button>
             </div>
             
@@ -601,7 +750,7 @@ export default function App() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '1.5rem' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                {activeReaderChunk.wordCount} words • Estimated read time: {activeReaderChunk.estimatedReadingTime} mins
+                {t.words(activeReaderChunk.wordCount)} • {t.estimatedReadTime(activeReaderChunk.estimatedReadingTime)}
               </span>
               <button
                 className={`btn ${activeReaderChunk.completed ? 'btn-secondary' : 'btn-primary'}`}
@@ -611,7 +760,7 @@ export default function App() {
                   setActiveReaderChunk(prev => prev ? { ...prev, completed: !prev.completed } : null);
                 }}
               >
-                {activeReaderChunk.completed ? 'Mark Incomplete' : 'Mark Completed'}
+                {activeReaderChunk.completed ? t.markIncomplete : t.markCompleted}
               </button>
             </div>
           </div>

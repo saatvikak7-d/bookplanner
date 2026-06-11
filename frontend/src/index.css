@@ -90,6 +90,20 @@ body {
   gap: 0.5rem;
 }
 
+.language-select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font: inherit;
+  padding: 0.45rem 0.65rem;
+}
+
+.language-select:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
 .main-content {
   flex: 1;
   max-width: 1400px;
